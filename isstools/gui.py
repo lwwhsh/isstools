@@ -120,10 +120,13 @@ class ScanGui(*uic.loadUiType(ui_path)):
         self.json_data = json.loads(json_data)
         self.comboBoxElement.currentIndexChanged.connect(self.update_combo_edge)
         self.comboBoxEdge.currentIndexChanged.connect(self.update_e0_value)
+        self.comboBoxElement_2.currentIndexChanged.connect(self.update_combo_edge2)
+        self.comboBoxEdge_2.currentIndexChanged.connect(self.update_e0_value2)
         elems = [item['name'] for item in self.json_data]
         for i in range(21, 109):
             elems[i - 21] = '{:3d} {}'.format(i, elems[i - 21])
         self.comboBoxElement.addItems(elems)
+        self.comboBoxElement_2.addItems(elems)
 
 
 #        for i in range(21, 109):
@@ -235,6 +238,7 @@ class ScanGui(*uic.loadUiType(ui_path)):
         self.push_replot_exafs.clicked.connect(self.update_k_view)
         self.push_replot_file.clicked.connect(self.replot_bin_equal)
         self.cid = self.canvas_old_scans_2.mpl_connect('button_press_event', self.getX)
+        self.cid_binned_graph = self.canvas_old_scans_3.mpl_connect('button_press_event', self.getX_binned)
         # Disable buttons
         self.push_bin.setDisabled(True)
         self.push_save_bin.setDisabled(True)
@@ -260,6 +264,16 @@ class ScanGui(*uic.loadUiType(ui_path)):
     def update_e0_value(self, index):
         if self.comboBoxEdge.count() > 0:
             self.edit_E0.setText(str(self.json_data[self.comboBoxElement.currentIndex()][self.comboBoxEdge.currentText()]))
+
+    def update_combo_edge2(self, index):
+        self.comboBoxEdge_2.clear()
+        edges = [key for key in list(self.json_data[index].keys()) if key != 'name' and key != 'symbol']
+        edges.sort()
+        self.comboBoxEdge_2.addItems(edges)
+
+    def update_e0_value2(self, index):
+        if self.comboBoxEdge_2.count() > 0:
+            self.edit_ECal.setText(str(self.json_data[self.comboBoxElement_2.currentIndex()][self.comboBoxEdge_2.currentText()]))
 
     def toggle_piezo_fb(self, value):
         if value == 0:
@@ -348,6 +362,9 @@ class ScanGui(*uic.loadUiType(ui_path)):
 
     def getX(self, event):
         self.edit_E0_2.setText(str(int(np.round(event.xdata))))
+
+    def getX_binned(self, event):
+        self.edit_ECal.setText(str(int(np.round(event.xdata))))
 
     def getX_gen_scan(self, event):
         if event.button == 2:
